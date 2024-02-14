@@ -644,7 +644,8 @@ PlayerSettings:
   webGLMemoryGeometricGrowthStep: 0.2
   webGLMemoryGeometricGrowthCap: 96
   webGLPowerPreference: 2
-  scriptingDefineSymbols: {}
+  scriptingDefineSymbols:
+    Standalone: TEXTURE_GRAPH;POSEIDON;JUPITER;GRIFFIN;TG_SEARCHER;GRIFFIN_2021
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}
