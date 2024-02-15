@@ -9,17 +9,23 @@ namespace WorldGeneration
 {
     public class BasicWorldFactory
     {
+        internal float offsetX = 5000f;
+        internal float offsetY = 3000f;
         // Creating non-initialized variables of a needed type
         // We need Vector3 and int arrays to store vertices and triangles of the meshes
         internal Mesh Mesh;
         internal Vector3[] Vertices;
         internal int[] Triangles;
 
+        internal List<Vector3> MeshPositionList;
+
         // Here goes width and height of the terrain
         // (remember that Unity uses y to measure altitude
         // while Unreal uses z for the same purposes)
         internal int xSize;
         internal int zSize;
+        
+        internal float scale = 300f;
 
         // This function generates the terrain mesh
         internal void CreateShape()
@@ -27,6 +33,7 @@ namespace WorldGeneration
             // Initializing Vertices to the basic x,y size
             // and adding 1 (since triangle has two dots on each side)
             Vertices = new Vector3[(xSize + 1) * (zSize + 1)];
+            MeshPositionList = new List<Vector3>();
 
             for (int i = 0, z = 0; z <= zSize; z++) // Double for loop to cover the whole square area - rows and columns
             {
@@ -34,16 +41,22 @@ namespace WorldGeneration
                 {
                     // We are getting random values in a small range
                     // to make terrain look more random each generation cycle.
-                    float xRand = Random.Range(0.1f, 0.25f);
-                    float zRand = Random.Range(0.1f, 0.25f);
+                    offsetX = Random.Range(0f, 9999f);
+                    offsetY = Random.Range(0f, 9999f);
+                    
+                    float xCoord = (float)x / xSize * scale + offsetX;
+                    float yCoord = (float)z / zSize * scale + offsetY;
 
                     // Plus, we're multiplying the random values
                     // by Perlin Noise values to create even more randomness
-                    float y = Mathf.PerlinNoise(x * xRand, z * zRand) * 1.5f;
+                    float y = Mathf.PerlinNoise(xCoord, yCoord);
 
                     // This initializes the current i-Vertex point with x, y, z positions in space.
                     // Then we add i + i to our manual counter and go into next cycle of the loop
                     Vertices[i] = new Vector3(x, y, z);
+                    
+                    MeshPositionList.Add(Vertices[i]);
+                    Debug.Log($"Printing current Vector3 position: {MeshPositionList[i]}");
                     i++;
                 }
             }
@@ -67,7 +80,6 @@ namespace WorldGeneration
                     Triangles[tris + 3] = vert + 1;
                     Triangles[tris + 4] = vert + xSize + 1;
                     Triangles[tris + 5] = vert + xSize + 2;
-
                     // We increase the counter...
                     vert++;
                     // ...and shift to the side to generate the next 6-sided quad mesh
@@ -89,7 +101,7 @@ namespace WorldGeneration
             // This function call is needed to make adequate shading
             Mesh.RecalculateNormals();
         }
-        
+
         // The constructor is needed for a better availability in singleton
         public BasicWorldFactory(Mesh mesh, int xSize, int zSize)
         {
